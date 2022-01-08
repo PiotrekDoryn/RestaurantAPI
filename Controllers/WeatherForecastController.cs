@@ -33,6 +33,13 @@ namespace RestaurantAPI.Controllers
             return result;
         }
 
+        [HttpGet("currentDay/{count}/{min}/{max}")]
+        public IEnumerable<WeatherForecast> GetByRoute([FromRoute] int count, [FromRoute] int min, [FromRoute] int max)
+        {
+            var result = _service.Get(count, min, max);
+            return result;
+        }
+
         [HttpPost]
         public ActionResult<string> Hello([FromBody] string name)
         {
