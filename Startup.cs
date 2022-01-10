@@ -28,14 +28,14 @@ namespace RestaurantAPI
         {
             services.AddTransient<IWeatherForecastService, WeatherForecastService>();
             services.AddControllers();
-            //services.AddDbContext<RestaurantDBcontext>();
-            //services.AddScoped<RestaurantSeeder>();
+            services.AddDbContext<RestaurantDBcontext>();
+            services.AddScoped<RestaurantSeeder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline..
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RestaurantSeeder seeder)
         {
-            //seeder.Seed();
+            seeder.Seed();
 
             if (env.IsDevelopment())
             {
