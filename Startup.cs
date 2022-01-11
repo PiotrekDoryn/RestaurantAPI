@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RestaurantAPI.Entities;
+using RestaurantAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace RestaurantAPI
             services.AddControllers();
             services.AddDbContext<RestaurantDBcontext>();
             services.AddScoped<RestaurantSeeder>();
+            services.AddScoped<IRestaurantService, RestaurantService>();
             services.AddAutoMapper(this.GetType().Assembly);
         }
 

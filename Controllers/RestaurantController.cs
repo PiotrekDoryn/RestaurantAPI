@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Models;
+using RestaurantAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,11 @@ namespace RestaurantAPI.Controllers
     [Route("api/restaurant")]
     public class RestaurantController : ControllerBase
     {
-        private RestaurantDBcontext _dbContext;
-        private readonly IMapper _mapper;
+        private readonly IRestaurantService _restaurantService;
 
-        public RestaurantController(RestaurantDBcontext dbContext, IMapper mapper)
+        public RestaurantController(IRestaurantService restaurantService)
         {
-            _dbContext = dbContext;
-            _mapper = mapper;
+            _restaurantService = restaurantService;
         }
 
         /// <summary>
@@ -31,13 +30,7 @@ namespace RestaurantAPI.Controllers
         [ProducesResponseType(typeof(RestaurantDto), 200)]
         public ActionResult<IEnumerable<RestaurantDto>> GetAllRestaurants()
         {
-            var result = _dbContext
-                .Restaurants
-                .Include(r => r.Address)
-                .Include(r => r.Dishes)
-                .ToList();
-
-            var resultDto = _mapper.Map<List<RestaurantDto>>(result);
+            var resultDto = _restaurantService.GetAllRestaurants();
             return Ok(resultDto);
         }
 
@@ -50,17 +43,11 @@ namespace RestaurantAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<RestaurantDto>> GetRestaurantById([FromRoute] int id)
         {
-            var result = _dbContext
-                .Restaurants
-                .Include(r => r.Address)
-                .Include(r => r.Dishes)
-                .FirstOrDefault(x => x.Id == id);
+            var resultDto = _restaurantService.GetRestaurantById(id);
 
-            if(result is null)
-            {
+            if(resultDto is null)            
                 return NotFound();
-            }
-            var resultDto = _mapper.Map<RestaurantDto>(result);
+            
             return Ok(resultDto);
         }
         /// <summary>
@@ -71,15 +58,12 @@ namespace RestaurantAPI.Controllers
         [HttpPost]
         public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto createRestaurantDto)
         {
-            if(!ModelState.IsValid)
-            {
+            if(!ModelState.IsValid)            
                 return BadRequest(ModelState);
-            }
-            var result = _mapper.Map<Restaurant>(createRestaurantDto);
-            _dbContext.Restaurants.Add(result);
-            _dbContext.SaveChanges();
+            
+            var result = _restaurantService.CreateRestaurant(createRestaurantDto);
 
-            return Created($"/api/restaurant/{result.Id}",null);      
+            return Created($"/api/restaurant/{result}",null);      
         }
     }
 }
