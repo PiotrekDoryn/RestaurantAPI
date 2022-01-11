@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RestaurantAPI.Entities;
+using RestaurantAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +15,12 @@ namespace RestaurantAPI.Controllers
     public class RestaurantController : ControllerBase
     {
         private RestaurantDBcontext _dbContext;
+        private readonly IMapper _mapper;
 
-        public RestaurantController(RestaurantDBcontext dbContext)
+        public RestaurantController(RestaurantDBcontext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -23,11 +28,17 @@ namespace RestaurantAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Restaurant))]
-        public ActionResult<IEnumerable<Restaurant>> GetAllRestaurants()
+        [ProducesResponseType(typeof(RestaurantDto), 200)]
+        public ActionResult<IEnumerable<RestaurantDto>> GetAllRestaurants()
         {
-            var result = _dbContext.Restaurants.ToList();
-            return Ok(result);
+            var result = _dbContext
+                .Restaurants
+                .Include(r => r.Address)
+                .Include(r => r.Dishes)
+                .ToList();
+
+            var resultDto = _mapper.Map<List<RestaurantDto>>(result);
+            return Ok(resultDto);
         }
 
         /// <summary>
@@ -35,16 +46,22 @@ namespace RestaurantAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Restaurant))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RestaurantDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<Restaurant>> GetRestaurantById([FromRoute] int id)
+        public ActionResult<IEnumerable<RestaurantDto>> GetRestaurantById([FromRoute] int id)
         {
-            var result = _dbContext.Restaurants.FirstOrDefault(x => x.Id == id);
+            var result = _dbContext
+                .Restaurants
+                .Include(r => r.Address)
+                .Include(r => r.Dishes)
+                .FirstOrDefault(x => x.Id == id);
+
             if(result is null)
             {
                 return NotFound();
             }
-            return Ok(result);
+            var resultDto = _mapper.Map<RestaurantDto>(result);
+            return Ok(resultDto);
         }
     }
 }
