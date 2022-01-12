@@ -16,12 +16,14 @@ namespace RestaurantAPI.Controllers
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantService _restaurantService;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="restaurantService"></param>
         public RestaurantController(IRestaurantService restaurantService)
         {
             _restaurantService = restaurantService;
         }
-
         /// <summary>
         /// Return All Restaurants
         /// </summary>
@@ -56,6 +58,7 @@ namespace RestaurantAPI.Controllers
         /// <param name="createRestaurantDto"></param>
         /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto createRestaurantDto)
         {
             if(!ModelState.IsValid)            
@@ -64,6 +67,36 @@ namespace RestaurantAPI.Controllers
             var result = _restaurantService.CreateRestaurant(createRestaurantDto);
 
             return Created($"/api/restaurant/{result}",null);      
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult DeleteRestaurantById([FromRoute] int id)
+        {
+            var result = _restaurantService.DeleteRestaurant(id);
+
+            if(result)
+                return NoContent();
+
+            return NotFound();
+        }
+        [HttpPut("{id}")]
+        public ActionResult UpdateRestaurantById([FromBody] UpdateRestaurantDto updateRestaurantDto, [FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var isUpdated = _restaurantService.UpdateRestaurant(id, updateRestaurantDto);
+
+            if (!isUpdated)
+                return NotFound();
+
+            return Ok();
         }
     }
 }
