@@ -9,7 +9,7 @@ namespace RestaurantAPI.Entities
     public class RestaurantDBcontext : DbContext
     {
         private string _connectionstring =
-            "Data Source=DELL-PIOTREK\\SQLEXPRESS;Database=RestaurantDb;Trusted_Connection=True;";
+            "Data Source=DELL-PIOTREK\\SQLEXPRESS;Database=RestaurantDbs;Trusted_Connection=True;";
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Dish> Dishes { get; set; }
